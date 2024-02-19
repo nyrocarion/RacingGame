@@ -25,7 +25,6 @@ class MenuCreator(object):
         self.__colorBgMid = (224,163,135)
         self.__colorBgBright = (185,106,89)
         self.__colorFontMid = (116,58,54)
-        self.__colorFontBright = (224,163,135)
         
     def getCurrentPlayer(self):
         '''
@@ -43,6 +42,73 @@ class MenuCreator(object):
         '''    
         return self.__currentCar
     
+    def settingsMenu(self):
+        settingsBgRect = pygame.rect.Rect((0,50),(1000,100))
+        settingsText = self.__fontTitle.render("SETTINGS",False,self.__colorFontMid)
+        settingsTextRect = settingsText.get_rect(center=(500,100))
+        
+        backButton = pygame.rect.Rect((400,675),(200,50))
+        backText = self.__fontButton.render("BACK", False, self.__colorBgMid)
+        backTextRect = backText.get_rect(center=(500,700))
+        
+        resetText = self.__fontButton.render("RESET", False, self.__colorBgMid)
+        resetButton = pygame.rect.Rect((50,175),(350,50))
+        resetTextRect = resetText.get_rect(center=(225,200))
+        
+        bottomBgRect = pygame.rect.Rect((0,650),(1000,100))
+        
+        clicked = False
+        while self.__main.menuManager.getSettingsMenu():
+            self.__gameWindow.fill(self.__colorBgDark)
+            cursorPos = pygame.mouse.get_pos()
+            cursorOverBack = False
+            cursorOverReset = False
+            
+            if backButton.collidepoint((cursorPos[0],cursorPos[1])):
+                if clicked:
+                    self.__main.playerManager.setCurrentPlayer(self.__currentPlayer)
+                    self.__main.menuManager.setLeaderboardMenu(False)
+                    break
+                else:
+                    cursorOverBack = True
+            if resetButton.collidepoint((cursorPos[0],cursorPos[1])):
+                if clicked:
+                    self.__main.xml.resetXML(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getId())
+                    values = self.__main.xml.fromXML(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getId())
+                    self.__main.playerManager.getPlayerList()[self.__currentPlayer].loadSave(values[0],values[1],values[3])   
+                    self.__main.playerManager.getPlayerList()[self.__currentPlayer].resetAvailableCarList()
+                else:
+                    cursorOverReset = True
+            #Draw        
+            pygame.draw.rect(self.__gameWindow,self.__colorBgBright,settingsBgRect)
+            pygame.draw.rect(self.__gameWindow,self.__colorBgBright,bottomBgRect)
+            if cursorOverBack:
+                pygame.draw.rect(self.__gameWindow,self.__colorBgDark,backButton)
+            else:
+                pygame.draw.rect(self.__gameWindow,self.__colorFontMid,backButton)
+            if cursorOverReset:
+                pygame.draw.rect(self.__gameWindow,self.__colorBgBright,resetButton)
+            else:
+                pygame.draw.rect(self.__gameWindow,self.__colorFontMid,resetButton)
+            self.__gameWindow.blit(settingsText,settingsTextRect)
+            self.__gameWindow.blit(backText,backTextRect)
+            self.__gameWindow.blit(resetText,resetTextRect)
+            
+            clicked = False
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        pygame.quit()
+                        sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        clicked = True
+            pygame.display.update()
+            self.__main.clock.tick(30.0)
+    
     def leaderboardMenu(self):
         '''
         Parameters:     None
@@ -50,20 +116,20 @@ class MenuCreator(object):
         Output:         None
         '''  
         creditsBgRect = pygame.rect.Rect((0,50),(1000,100))
-        creditsText = self.__fontTitle.render("LEADERBOARD",False,(116,58,54))
+        creditsText = self.__fontTitle.render("LEADERBOARD",False,self.__colorFontMid)
         creditsTextRect = creditsText.get_rect(center=(500,100))
         
         creditsBgRect = pygame.rect.Rect((50,175),(900,425))
         bottomBgRect = pygame.rect.Rect((0,650),(1000,100))
         
         backButton = pygame.rect.Rect((400,675),(200,50))
-        backText = self.__fontButton.render("BACK", False, (224,163,135))
+        backText = self.__fontButton.render("BACK", False, self.__colorBgMid)
         backTextRect = backText.get_rect(center=(500,700))
         
         clicked = False
         
         while self.__main.menuManager.getLeaderboardMenu():
-            self.__gameWindow.fill((49,10,11))
+            self.__gameWindow.fill(self.__colorBgDark)
             
             cursorPos = pygame.mouse.get_pos()
             cursorOverBack = False   
@@ -76,20 +142,20 @@ class MenuCreator(object):
                 else:
                     cursorOverBack = True
             # Draw BG
-            pygame.draw.rect(self.__gameWindow,(185,106,89),creditsBgRect)
-            pygame.draw.rect(self.__gameWindow,(185,106,89),bottomBgRect)
-            pygame.draw.rect(self.__gameWindow,(116,58,54),creditsBgRect)
+            pygame.draw.rect(self.__gameWindow,self.__colorBgBright,creditsBgRect)
+            pygame.draw.rect(self.__gameWindow,self.__colorBgBright,bottomBgRect)
+            pygame.draw.rect(self.__gameWindow,self.__colorFontMid,creditsBgRect)
 
             if cursorOverBack:
-                pygame.draw.rect(self.__gameWindow,(49,10,11),backButton)
+                pygame.draw.rect(self.__gameWindow,self.__colorBgDark,backButton)
             else:
-                pygame.draw.rect(self.__gameWindow,(116,58,54),backButton)
+                pygame.draw.rect(self.__gameWindow,self.__colorFontMid,backButton)
             # Draw Text
             self.__gameWindow.blit(creditsText,creditsTextRect)    
             self.__gameWindow.blit(backText,backTextRect)
             
             for element in self.__main.xml.scoreboard():
-                leaderboardText = self.__fontMonospace.render(element[0]+element[1],False, (224,163,135))
+                leaderboardText = self.__fontMonospace.render(element[0]+element[1],False, self.__colorBgMid)
                 leaderboardTextRect = leaderboardText.get_rect(topleft = (50,175+self.__main.xml.scoreboard().index(element)*40))
                 self.__gameWindow.blit(leaderboardText,leaderboardTextRect)
             
@@ -115,22 +181,22 @@ class MenuCreator(object):
         Output:         None
         '''  
         creditsBgRect = pygame.rect.Rect((0,50),(1000,100))
-        creditsText = self.__fontTitle.render("CREDITS",False,(116,58,54))
+        creditsText = self.__fontTitle.render("CREDITS",False,self.__colorFontMid)
         creditsTextRect = creditsText.get_rect(center=(500,100))
         
-        creditsLeftText1 = self.__fontButton.render("ALLGEMEIN",False,(224,163,135))
-        creditsLeftText2 = self.__fontMonospaceSmall.render("Erstellt von Niklas in ca.45h",False,(224,163,135))
-        creditsLeftText3 = self.__fontMonospaceSmall.render("im Rahmen eines Informatikprojekts",False,(224,163,135))
-        creditsLeftText4 = self.__fontMonospaceSmall.render("Pixelart selbst erstellt mit",False,(224,163,135))
-        creditsLeftText5 = self.__fontMonospaceSmall.render("www.piskelapp.com",False,(224,163,135))
+        creditsLeftText1 = self.__fontButton.render("ALLGEMEIN",False,self.__colorBgMid)
+        creditsLeftText2 = self.__fontMonospaceSmall.render("Erstellt von Niklas in ca.45h",False,self.__colorBgMid)
+        creditsLeftText3 = self.__fontMonospaceSmall.render("im Rahmen eines Informatikprojekts",False,self.__colorBgMid)
+        creditsLeftText4 = self.__fontMonospaceSmall.render("Pixelart selbst erstellt mit",False,self.__colorBgMid)
+        creditsLeftText5 = self.__fontMonospaceSmall.render("www.piskelapp.com",False,self.__colorBgMid)
         
-        creditsRightText1 = self.__fontButton.render("FONTS",False,(224,163,135))
-        creditsRightText2 = self.__fontMonospaceSmall.render("bluescreen.ttf",False,(224,163,135))
-        creditsRightText3 = self.__fontMonospaceSmall.render("www.dafont.com/blue-screen.font",False,(224,163,135))
-        creditsRightText4 = self.__fontMonospaceSmall.render("pixelfont.ttf",False,(224,163,135))
-        creditsRightText5 = self.__fontMonospaceSmall.render("www.dafont.com/minecraft.font",False,(224,163,135))
-        creditsRightText6 = self.__fontMonospaceSmall.render("edundot.ttf",False,(224,163,135))
-        creditsRightText7 = self.__fontMonospaceSmall.render("www.dafont.com/edit-undo-dot.font",False,(224,163,135))   
+        creditsRightText1 = self.__fontButton.render("FONTS",False,self.__colorBgMid)
+        creditsRightText2 = self.__fontMonospaceSmall.render("bluescreen.ttf",False,self.__colorBgMid)
+        creditsRightText3 = self.__fontMonospaceSmall.render("www.dafont.com/blue-screen.font",False,self.__colorBgMid)
+        creditsRightText4 = self.__fontMonospaceSmall.render("pixelfont.ttf",False,self.__colorBgMid)
+        creditsRightText5 = self.__fontMonospaceSmall.render("www.dafont.com/minecraft.font",False,self.__colorBgMid)
+        creditsRightText6 = self.__fontMonospaceSmall.render("edundot.ttf",False,self.__colorBgMid)
+        creditsRightText7 = self.__fontMonospaceSmall.render("www.dafont.com/edit-undo-dot.font",False,self.__colorBgMid)   
         
         creditRLTexts = [creditsLeftText1,creditsLeftText2,creditsLeftText3,creditsLeftText4,creditsLeftText5,creditsRightText1,creditsRightText2,creditsRightText3,creditsRightText4,creditsRightText5,creditsRightText6,creditsRightText7]
         
@@ -157,13 +223,13 @@ class MenuCreator(object):
         bottomBgRect = pygame.rect.Rect((0,650),(1000,100))
         
         backButton = pygame.rect.Rect((400,675),(200,50))
-        backText = self.__fontButton.render("BACK", False, (224,163,135))
+        backText = self.__fontButton.render("BACK", False, self.__colorBgMid)
         backTextRect = backText.get_rect(center=(500,700))
         
         clicked = False
         
         while self.__main.menuManager.getCreditsMenu():
-            self.__gameWindow.fill((49,10,11))#
+            self.__gameWindow.fill(self.__colorBgDark)#
             
             cursorPos = pygame.mouse.get_pos()
             cursorOverBack = False  
@@ -176,15 +242,15 @@ class MenuCreator(object):
                 else:
                     cursorOverBack = True
             #Draw Bg
-            pygame.draw.rect(self.__gameWindow,(185,106,89),creditsBgRect)
-            pygame.draw.rect(self.__gameWindow,(185,106,89),bottomBgRect)
-            pygame.draw.rect(self.__gameWindow,(116,58,54),creditsBgRect1)
-            pygame.draw.rect(self.__gameWindow,(116,58,54),creditsBgRect2)
+            pygame.draw.rect(self.__gameWindow,self.__colorBgBright,creditsBgRect)
+            pygame.draw.rect(self.__gameWindow,self.__colorBgBright,bottomBgRect)
+            pygame.draw.rect(self.__gameWindow,self.__colorFontMid,creditsBgRect1)
+            pygame.draw.rect(self.__gameWindow,self.__colorFontMid,creditsBgRect2)
             
             if cursorOverBack:
-                pygame.draw.rect(self.__gameWindow,(49,10,11),backButton)
+                pygame.draw.rect(self.__gameWindow,self.__colorBgDark,backButton)
             else:
-                pygame.draw.rect(self.__gameWindow,(116,58,54),backButton)
+                pygame.draw.rect(self.__gameWindow,self.__colorFontMid,backButton)
             # Draw Text    
             self.__gameWindow.blit(creditsText,creditsTextRect)    
             self.__gameWindow.blit(backText,backTextRect)
@@ -214,17 +280,17 @@ class MenuCreator(object):
         Output:         None
         '''  
         # Create Text and Numbers
-        gameoverText = self.__fontTitle.render("-GAME OVER-",False,(116,58,54))
-        moneyAllText = self.__fontValues.render("ALL MONEY: ",False,(224,163,135))
-        highscoreText = self.__fontValues.render("HIGHSCORE: ",False,(224,163,135))
-        moneyText = self.__fontValues.render("MONEY: ",False,(224,163,135))
-        scoreText = self.__fontValues.render("SCORE: ",False,(224,163,135))
+        gameoverText = self.__fontTitle.render("-GAME OVER-",False,self.__colorFontMid)
+        moneyAllText = self.__fontValues.render("ALL MONEY: ",False,self.__colorBgMid)
+        highscoreText = self.__fontValues.render("HIGHSCORE: ",False,self.__colorBgMid)
+        moneyText = self.__fontValues.render("MONEY: ",False,self.__colorBgMid)
+        scoreText = self.__fontValues.render("SCORE: ",False,self.__colorBgMid)
         
-        moneyAllNumberText = self.__fontValuesNumbers.render(str(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getTotalMoney(True)),False,(224,163,135))
-        highscoreNumberText = self.__fontValuesNumbers.render(str(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getHighscore()),False,(224,163,135))
-        moneyNumberText = self.__fontValuesNumbers.render(str(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getMoney(True)),False,(224,163,135))
+        moneyAllNumberText = self.__fontValuesNumbers.render(str(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getTotalMoney(True)),False,self.__colorBgMid)
+        highscoreNumberText = self.__fontValuesNumbers.render(str(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getHighscore()),False,self.__colorBgMid)
+        moneyNumberText = self.__fontValuesNumbers.render(str(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getMoney(True)),False,self.__colorBgMid)
         scoreNumber = self.__main.playerManager.getPlayerList()[self.__currentPlayer].getScore()//50
-        scoreNumberText = self.__fontValuesNumbers.render(str(scoreNumber),False,(224,163,135))
+        scoreNumberText = self.__fontValuesNumbers.render(str(scoreNumber),False,self.__colorBgMid)
         # Create Rects
         gameoverBgRect = pygame.rect.Rect((0,50),(1000,100))
         moneyAllBgRect = pygame.rect.Rect((50,175),(400,75))
@@ -247,17 +313,17 @@ class MenuCreator(object):
         bottomBgRect2 = pygame.rect.Rect((0,650),(1000,100))
         
         backButton = pygame.rect.Rect((400,675),(200,50))
-        backText = self.__fontButton.render("BACK", False, (224,163,135))
+        backText = self.__fontButton.render("BACK", False, self.__colorBgMid)
         backTextRect = backText.get_rect(center=(500,700))
         
         creditsButton = pygame.rect.Rect((400,550),(200,50))
-        creditsText = self.__fontButton.render("CREDITS", False, (224,163,135))
+        creditsText = self.__fontButton.render("CREDITS", False, self.__colorBgMid)
         creditsTextRect = backText.get_rect(center=(470,575))
         
         clicked = False
         
         while self.__main.menuManager.getEndMenu():
-            self.__gameWindow.fill((49,10,11))
+            self.__gameWindow.fill(self.__colorBgDark)
             
             cursorPos = pygame.mouse.get_pos()
             cursorOverBack = False
@@ -282,23 +348,23 @@ class MenuCreator(object):
                 else:
                     cursorOverLeaderboard = True
             # Draw bg
-            pygame.draw.rect(self.__gameWindow,(116,58,54),moneyAllBgRect)
-            pygame.draw.rect(self.__gameWindow,(116,58,54),highscoreBgRect)
-            pygame.draw.rect(self.__gameWindow,(185,106,89),gameoverBgRect)
-            pygame.draw.rect(self.__gameWindow,(116,58,54),scoreBgRect)
-            pygame.draw.rect(self.__gameWindow,(116,58,54),moneyBgRect)
-            pygame.draw.rect(self.__gameWindow,(185,106,89),bottomBgRect)
-            pygame.draw.rect(self.__gameWindow,(185,106,89),bottomBgRect2)
+            pygame.draw.rect(self.__gameWindow,self.__colorFontMid,moneyAllBgRect)
+            pygame.draw.rect(self.__gameWindow,self.__colorFontMid,highscoreBgRect)
+            pygame.draw.rect(self.__gameWindow,self.__colorBgBright,gameoverBgRect)
+            pygame.draw.rect(self.__gameWindow,self.__colorFontMid,scoreBgRect)
+            pygame.draw.rect(self.__gameWindow,self.__colorFontMid,moneyBgRect)
+            pygame.draw.rect(self.__gameWindow,self.__colorBgBright,bottomBgRect)
+            pygame.draw.rect(self.__gameWindow,self.__colorBgBright,bottomBgRect2)
             
             if cursorOverBack:
-                pygame.draw.rect(self.__gameWindow,(49,10,11),backButton)
+                pygame.draw.rect(self.__gameWindow,self.__colorBgDark,backButton)
             else:
-                pygame.draw.rect(self.__gameWindow,(116,58,54),backButton)
+                pygame.draw.rect(self.__gameWindow,self.__colorFontMid,backButton)
                 
             if cursorOverLeaderboard:
-                pygame.draw.rect(self.__gameWindow,(49,10,11),creditsButton)
+                pygame.draw.rect(self.__gameWindow,self.__colorBgDark,creditsButton)
             else:
-                pygame.draw.rect(self.__gameWindow,(116,58,54),creditsButton)
+                pygame.draw.rect(self.__gameWindow,self.__colorFontMid,creditsButton)
             # Draw Text
             self.__gameWindow.blit(highscoreText,highscoreTextRect)
             self.__gameWindow.blit(moneyAllText,moneyAllTextRect)
@@ -346,18 +412,18 @@ class MenuCreator(object):
         minusImage = pygame.image.load("assets/menuSymbols//minus.png")
         minus1Image = pygame.image.load("assets/menuSymbols//minus1.png")
 
-        highscoreText = self.__fontValues.render("HIGHSCORE:",False,(224,163,135))
-        highscoreNumberText = self.__fontValuesNumbers.render(str(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getHighscore()),False,(224,163,135))
-        moneyText = self.__fontValues.render("MONEY:",False,(224,163,135))
-        moneyNumberText = self.__fontValuesNumbers.render(str(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getTotalMoney(True)),False,(224,163,135))
-        titleText = self.__fontTitle.render("GAMETITLE",False,(116,58,54))
-        startText = self.__fontButton.render("START", False, (224,163,135))
-        leaderboardText = self.__fontButton.render("LEADERBOARD", False, (224,163,135))
-        creditsText = self.__fontButton.render("CREDITS", False, (224,163,135))
-        resetText = self.__fontButton.render("RESET", False, (224,163,135))
+        highscoreText = self.__fontValues.render("HIGHSCORE:",False,self.__colorBgMid)
+        highscoreNumberText = self.__fontValuesNumbers.render(str(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getHighscore()),False,self.__colorBgMid)
+        moneyText = self.__fontValues.render("MONEY:",False,self.__colorBgMid)
+        moneyNumberText = self.__fontValuesNumbers.render(str(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getTotalMoney(True)),False,self.__colorBgMid)
+        titleText = self.__fontTitle.render("GAMETITLE",False,self.__colorFontMid)
+        startText = self.__fontButton.render("START", False, self.__colorBgMid)
+        leaderboardText = self.__fontButton.render("LEADERBOARD", False, self.__colorBgMid)
+        creditsText = self.__fontButton.render("CREDITS", False, self.__colorBgMid)
+        resetText = self.__fontButton.render("SETTINGS", False, self.__colorBgMid)
         info = self.__main.playerManager.getPlayerList()[self.__currentPlayer].getCurrentCarInfo(self.__currentCar)
         moneyValueCarTextCalc = "["+str(info[0])+"] "+info[1]+" - "+str(info[2])+"$"
-        moneyValueCarText = self.__fontMonospaceSmall.render(moneyValueCarTextCalc,False,(49,10,11))
+        moneyValueCarText = self.__fontMonospaceSmall.render(moneyValueCarTextCalc,False,self.__colorBgDark)
         
         titleBgRect = pygame.rect.Rect((0,50),(1000,100))
         moneyBgRect = pygame.rect.Rect((50,175),(400,75))
@@ -406,7 +472,7 @@ class MenuCreator(object):
             
             info = self.__main.playerManager.getPlayerList()[self.__currentPlayer].getCurrentCarInfo(self.__currentCar)
             moneyValueCarTextCalc = "["+str(info[0])+"] "+info[1]+" - "+str(info[2])+"$"
-            moneyValueCarText = self.__fontMonospaceSmall.render(moneyValueCarTextCalc,False,(49,10,11))
+            moneyValueCarText = self.__fontMonospaceSmall.render(moneyValueCarTextCalc,False,self.__colorBgDark)
             if info[3]:
                 buybuy = "BOUGHT"
             else:
@@ -414,13 +480,13 @@ class MenuCreator(object):
             
             if not playerNameInputActive:
                 textPlayerName = self.__main.playerManager.getPlayerList()[self.__currentPlayer].getName()
-            playerNameText = self.__fontButton.render(textPlayerName,False,(224,163,135))
+            playerNameText = self.__fontButton.render(textPlayerName,False,self.__colorBgMid)
             playerNameTextRect = playerNameText.get_rect(center=(500,325))
-            moneyNumberText = self.__fontValuesNumbers.render(str(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getTotalMoney(True)),False,(224,163,135))
+            moneyNumberText = self.__fontValuesNumbers.render(str(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getTotalMoney(True)),False,self.__colorBgMid)
             moneyNumberTextRect = moneyNumberText.get_rect(topright=(440,183))
-            highscoreNumberText = self.__fontValuesNumbers.render(str(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getHighscore()),False,(224,163,135))
+            highscoreNumberText = self.__fontValuesNumbers.render(str(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getHighscore()),False,self.__colorBgMid)
             highscoreNumberTextRect = highscoreNumberText.get_rect(topright=(940,183))
-            self.__gameWindow.fill((49,10,11))
+            self.__gameWindow.fill(self.__colorBgDark)
             
             cursorPos = pygame.mouse.get_pos()
             cursorOverStart = False
@@ -487,11 +553,16 @@ class MenuCreator(object):
                 else:
                     cursorOverCredits = True
             if resetButton.collidepoint((cursorPos[0],cursorPos[1])):
+                '''
                 if clicked:
                     self.__main.xml.resetXML(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getId())
                     values = self.__main.xml.fromXML(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getId())
                     self.__main.playerManager.getPlayerList()[self.__currentPlayer].loadSave(values[0],values[1],values[3])   
                     self.__main.playerManager.getPlayerList()[self.__currentPlayer].resetAvailableCarList()
+                '''
+                if clicked:
+                    self.__main.menuManager.setSettingsMenu(True)
+                    self.settingsMenu()
                 else:
                     cursorOverReset = True
             if rightRect1.collidepoint((cursorPos[0],cursorPos[1])):
@@ -526,38 +597,38 @@ class MenuCreator(object):
                 self.__main.playerManager.getPlayerList()[self.__currentPlayer].setName(textPlayerName)
                 self.__main.xml.toXML(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getId())
             # Draw bg
-            pygame.draw.rect(self.__gameWindow,(185,106,89),titleBgRect) 
-            pygame.draw.rect(self.__gameWindow,(116,58,54),moneyBgRect)
-            pygame.draw.rect(self.__gameWindow,(116,58,54),highscoreBgRect)
-            pygame.draw.rect(self.__gameWindow,(185,106,89),vehicleSelectionBgRect)
-            pygame.draw.rect(self.__gameWindow,(116,58,54),vehicleSelectionImageBgRect)
-            pygame.draw.rect(self.__gameWindow,(185,106,89),moneyValueCarBgRect)
-            pygame.draw.rect(self.__gameWindow,(185,106,89),bottomBgRect)
+            pygame.draw.rect(self.__gameWindow,self.__colorBgBright,titleBgRect) 
+            pygame.draw.rect(self.__gameWindow,self.__colorFontMid,moneyBgRect)
+            pygame.draw.rect(self.__gameWindow,self.__colorFontMid,highscoreBgRect)
+            pygame.draw.rect(self.__gameWindow,self.__colorBgBright,vehicleSelectionBgRect)
+            pygame.draw.rect(self.__gameWindow,self.__colorFontMid,vehicleSelectionImageBgRect)
+            pygame.draw.rect(self.__gameWindow,self.__colorBgBright,moneyValueCarBgRect)
+            pygame.draw.rect(self.__gameWindow,self.__colorBgBright,bottomBgRect)
 
             if cursorOverBuy and not info[3]:
-                pygame.draw.rect(self.__gameWindow,(49,10,11),buyButton)
+                pygame.draw.rect(self.__gameWindow,self.__colorBgDark,buyButton)
             else:
-                pygame.draw.rect(self.__gameWindow,(185,106,89),buyButton)
+                pygame.draw.rect(self.__gameWindow,self.__colorBgBright,buyButton)
             if cursorOverPlayerName:
-                pygame.draw.rect(self.__gameWindow,(49,10,11),playerNameBgRect)
+                pygame.draw.rect(self.__gameWindow,self.__colorBgDark,playerNameBgRect)
             else:
-                pygame.draw.rect(self.__gameWindow,(116,58,54),playerNameBgRect)
+                pygame.draw.rect(self.__gameWindow,self.__colorFontMid,playerNameBgRect)
             if cursorOverStart:
-                pygame.draw.rect(self.__gameWindow,(49,10,11),startButton)
+                pygame.draw.rect(self.__gameWindow,self.__colorBgDark,startButton)
             else:
-                pygame.draw.rect(self.__gameWindow,(116,58,54),startButton)
+                pygame.draw.rect(self.__gameWindow,self.__colorFontMid,startButton)
             if cursorOverLeaderboard:
-                pygame.draw.rect(self.__gameWindow,(49,10,11),leaderboardButton)
+                pygame.draw.rect(self.__gameWindow,self.__colorBgDark,leaderboardButton)
             else:
-                pygame.draw.rect(self.__gameWindow,(116,58,54),leaderboardButton)
+                pygame.draw.rect(self.__gameWindow,self.__colorFontMid,leaderboardButton)
             if cursorOverCredits:
-                pygame.draw.rect(self.__gameWindow,(49,10,11),creditsButton)
+                pygame.draw.rect(self.__gameWindow,self.__colorBgDark,creditsButton)
             else:
-                pygame.draw.rect(self.__gameWindow,(116,58,54),creditsButton)
+                pygame.draw.rect(self.__gameWindow,self.__colorFontMid,creditsButton)
             if cursorOverReset:
-                pygame.draw.rect(self.__gameWindow,(49,10,11),resetButton)
+                pygame.draw.rect(self.__gameWindow,self.__colorBgDark,resetButton)
             else:
-                pygame.draw.rect(self.__gameWindow,(116,58,54),resetButton)
+                pygame.draw.rect(self.__gameWindow,self.__colorFontMid,resetButton)
             # Draw Text
             if cursorOverPlus:  
                 self.__gameWindow.blit(plus1Image,plusRect)
@@ -568,11 +639,11 @@ class MenuCreator(object):
             else:
                 self.__gameWindow.blit(minusImage,minusRect)
             if cursorOverBuy and not info[3]:
-                buyText = self.__fontSmall.render(buybuy,False,(185,106,89))
+                buyText = self.__fontSmall.render(buybuy,False,self.__colorBgBright)
                 buyTextRect = buyText.get_rect(center=(500,506))
                 self.__gameWindow.blit(buyText,buyTextRect)
             else:
-                buyText = self.__fontSmall.render(buybuy,False,(49,10,11))
+                buyText = self.__fontSmall.render(buybuy,False,self.__colorBgDark)
                 buyTextRect = buyText.get_rect(center=(500,506))
                 self.__gameWindow.blit(buyText,buyTextRect)
             self.__gameWindow.blit(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getCarList()[self.__currentCar].getImage(),self.__main.playerManager.getPlayerList()[self.__currentPlayer].getCarList()[self.__currentCar].getImageRect())

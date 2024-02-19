@@ -9,6 +9,10 @@ class MenuManager(object):
         self.__endMenu = False
         self.__creditsMenu = False
         self.__leaderboardMenu = False
+        self.__settingsMenu = False
+        
+    def setSettingsMenu(self,bool):
+        self.__settingsMenu = bool
         
     def setMainMenu(self,bool):
         '''
@@ -41,6 +45,9 @@ class MenuManager(object):
         Output:         None
         '''
         self.__leaderboardMenu = bool
+        
+    def getSettingsMenu(self):
+        return self.__settingsMenu
         
     def getMainMenu(self):
         '''

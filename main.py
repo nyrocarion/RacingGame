@@ -35,7 +35,7 @@ class Main(object):
         '''
         Parameters:     None
         Funktion:       Startet die mainloop des Spieles. Tasteneingaben werden abgearbeitet und das Spielefenster und seine Bestandteile geupdatet. Überprüft auch, ob der Run beendet ist und führt
-                        dann Schritt aus um die Spielumgebung sowohl grafisch als auch im Modell so zurückzusetzen, dass ein erneuter Run möglich ist.
+                        dann Schritt aus um die Spielumgebung sowohl grafisch als auch im Modell so zurgückzusetzen, dass ein erneuter Run möglich ist.
         Output:         None
         '''
         self.gameEnvironment.setGameWindowSize(350,800)
