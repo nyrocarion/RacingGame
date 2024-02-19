@@ -15,11 +15,23 @@ class GameEnvironment(object):
         self.__font = pygame.font.Font("assets/fonts/pixelfont.ttf",40)
         self.__font20 = pygame.font.Font("assets/fonts/pixelfont.ttf",20)
         
-    def setGameWindowSize(self,x,y):
+        self.__res = (1000,800)
+        
+    def setGameWindowSize(self,size):
         # 350, 800 und 1000, 800
         del(self.__gameWindow)
-        self.__gameWindow = pygame.display.set_mode(size=(x,y))
-
+        if size == "default":
+            self.__gameWindow = pygame.display.set_mode(size=(1000,800))
+            self.__res = size
+        elif size == "gamesize":
+            self.__gameWindow = pygame.display.set_mode(size=(350,800))
+        elif size == "fullscreen":
+            self.__gameWindow = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
+        else:
+            self.__gameWindow = pygame.display.set_mode(size=(size[0],size[1]))
+            self.__res = size
+        
+            
     def getGameWindow(self):
         '''
         Parameters:     None

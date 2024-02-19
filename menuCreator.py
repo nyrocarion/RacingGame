@@ -26,6 +26,12 @@ class MenuCreator(object):
         self.__colorBgBright = (185,106,89)
         self.__colorFontMid = (116,58,54)
         
+    def changeColors(self,colors:tuple):
+        self.__colorBgDark = colors[0]
+        self.__colorBgMid = colors[1]
+        self.__colorBgBright = colors[2]
+        self.__colorFontMid = colors[3]
+        
     def getCurrentPlayer(self):
         '''
         Parameters:     None
@@ -43,6 +49,9 @@ class MenuCreator(object):
         return self.__currentCar
     
     def settingsMenu(self):
+        rightImage = pygame.image.load("assets/menuSymbols/right.png")
+        leftImage = pygame.image.load("assets/menuSymbols//left.png")
+        
         settingsBgRect = pygame.rect.Rect((0,50),(1000,100))
         settingsText = self.__fontTitle.render("SETTINGS",False,self.__colorFontMid)
         settingsTextRect = settingsText.get_rect(center=(500,100))
@@ -51,18 +60,60 @@ class MenuCreator(object):
         backText = self.__fontButton.render("BACK", False, self.__colorBgMid)
         backTextRect = backText.get_rect(center=(500,700))
         
-        resetText = self.__fontButton.render("RESET", False, self.__colorBgMid)
-        resetButton = pygame.rect.Rect((50,175),(350,50))
-        resetTextRect = resetText.get_rect(center=(225,200))
+        # y = 175
+        resetText = self.__fontButton.render("RESET CURRENT SAVE", False, self.__colorBgMid)
+        resetButton = pygame.rect.Rect((50,175),(425,50))
+        resetTextRect = resetText.get_rect(center=(263,200))
+        keybindsText = self.__fontButton.render("CHANGE KEYBINDS", False, self.__colorBgMid)
+        keybindsButton = pygame.rect.Rect((525,175),(425,50))
+        keybindsTextRect = keybindsText.get_rect(center=(738,200))
+        # y = 250
+        resolutionText = self.__fontButton.render("RESOLUTION", False, self.__colorBgMid)
+        resolutionTextRect = resolutionText.get_rect(center=(263,275))
+        leftRect1 = leftImage.get_rect(size=(50,50),topleft=(525,250))
+        rightRect1 = rightImage.get_rect(size=(50,50),topleft=(900,250))
+        resolutionValueRect = pygame.rect.Rect((600,250),(275,50))
+        res = str(self.__main.settingsManager.getResList()[self.__main.settingsManager.getCurrentRes()][0]) + "x" + str(self.__main.settingsManager.getResList()[self.__main.settingsManager.getCurrentRes()][1])
+        resolutionValueText = self.__fontMonospace.render(res, False, self.__colorBgMid)
+        resolutionValueTextRect = resolutionValueText.get_rect(center=(738,275))
+        # y = 325
+        schemeText = self.__fontButton.render("COLOR SCHEME", False, self.__colorBgMid)
+        schemeTextRect = schemeText.get_rect(center=(263,350))
+        leftRect2 = leftImage.get_rect(size=(50,50),topleft=(525,325))
+        rightRect2 = rightImage.get_rect(size=(50,50),topleft=(900,325))
+        schemeValueRect = pygame.rect.Rect((600,325),(275,50))
+        scheme = self.__main.settingsManager.getSchemeList()[self.__main.settingsManager.getCurrentScheme()][0]
+        schemeValueText = self.__fontMonospace.render(scheme, False, self.__colorBgMid)
+        schemeValueTextRect = schemeValueText.get_rect(center=(738,350))
         
         bottomBgRect = pygame.rect.Rect((0,650),(1000,100))
         
         clicked = False
         while self.__main.menuManager.getSettingsMenu():
+            # Falls sich farbe ändert
+            settingsText = self.__fontTitle.render("SETTINGS",False,self.__colorFontMid)
+            backText = self.__fontButton.render("BACK", False, self.__colorBgMid)
+            resolutionText = self.__fontButton.render("RESOLUTION", False, self.__colorBgMid)
+            schemeText = self.__fontButton.render("COLOR SCHEME", False, self.__colorBgMid)
+            resetText = self.__fontButton.render("RESET CURRENT SAVE", False, self.__colorBgMid)
+            keybindsText = self.__fontButton.render("CHANGE KEYBINDS", False, self.__colorBgMid)
+            # Werte die sich ändern
+            if not type(self.__main.settingsManager.getResList()[self.__main.settingsManager.getCurrentRes()]) == str:
+                res = str(self.__main.settingsManager.getResList()[self.__main.settingsManager.getCurrentRes()][0]) + "x" + str(self.__main.settingsManager.getResList()[self.__main.settingsManager.getCurrentRes()][1])
+            else:
+                res = self.__main.settingsManager.getResList()[self.__main.settingsManager.getCurrentRes()]
+            resolutionValueText = self.__fontMonospace.render(res, False, self.__colorBgMid)
+            resolutionValueTextRect = resolutionValueText.get_rect(center=(738,275))
+            scheme = self.__main.settingsManager.getSchemeList()[self.__main.settingsManager.getCurrentScheme()][0]
+            schemeValueText = self.__fontMonospace.render(scheme, False, self.__colorBgMid)
+            schemeValueTextRect = schemeValueText.get_rect(center=(738,350))
+            
             self.__gameWindow.fill(self.__colorBgDark)
             cursorPos = pygame.mouse.get_pos()
+            
             cursorOverBack = False
             cursorOverReset = False
+            cursorOverKeybinds = False
             
             if backButton.collidepoint((cursorPos[0],cursorPos[1])):
                 if clicked:
@@ -79,9 +130,29 @@ class MenuCreator(object):
                     self.__main.playerManager.getPlayerList()[self.__currentPlayer].resetAvailableCarList()
                 else:
                     cursorOverReset = True
+            if keybindsButton.collidepoint((cursorPos[0],cursorPos[1])):
+                if clicked:
+                    pass
+                else:
+                    cursorOverKeybinds = True
+            if rightRect1.collidepoint((cursorPos[0],cursorPos[1])):
+                if clicked:
+                    self.__main.settingsManager.changeRes(1)
+            if leftRect1.collidepoint((cursorPos[0],cursorPos[1])):
+                if clicked:
+                    self.__main.settingsManager.changeRes(-1)
+            if rightRect2.collidepoint((cursorPos[0],cursorPos[1])):
+                if clicked:
+                    self.__main.settingsManager.changeColorScheme(1)
+            if leftRect2.collidepoint((cursorPos[0],cursorPos[1])):
+                if clicked:
+                    self.__main.settingsManager.changeColorScheme(-1)
             #Draw        
             pygame.draw.rect(self.__gameWindow,self.__colorBgBright,settingsBgRect)
             pygame.draw.rect(self.__gameWindow,self.__colorBgBright,bottomBgRect)
+            pygame.draw.rect(self.__gameWindow,self.__colorFontMid,resolutionValueRect)
+            pygame.draw.rect(self.__gameWindow,self.__colorFontMid,schemeValueRect)
+            
             if cursorOverBack:
                 pygame.draw.rect(self.__gameWindow,self.__colorBgDark,backButton)
             else:
@@ -90,9 +161,24 @@ class MenuCreator(object):
                 pygame.draw.rect(self.__gameWindow,self.__colorBgBright,resetButton)
             else:
                 pygame.draw.rect(self.__gameWindow,self.__colorFontMid,resetButton)
+            if cursorOverKeybinds:
+                pygame.draw.rect(self.__gameWindow,self.__colorBgBright,keybindsButton)
+            else:
+                pygame.draw.rect(self.__gameWindow,self.__colorFontMid,keybindsButton)
+                
+            self.__gameWindow.blit(leftImage,leftRect1)
+            self.__gameWindow.blit(rightImage,rightRect1)
+            self.__gameWindow.blit(leftImage,leftRect2)
+            self.__gameWindow.blit(rightImage,rightRect2)
+                
             self.__gameWindow.blit(settingsText,settingsTextRect)
             self.__gameWindow.blit(backText,backTextRect)
             self.__gameWindow.blit(resetText,resetTextRect)
+            self.__gameWindow.blit(keybindsText,keybindsTextRect)
+            self.__gameWindow.blit(resolutionText,resolutionTextRect)
+            self.__gameWindow.blit(schemeText,schemeTextRect)
+            self.__gameWindow.blit(resolutionValueText,resolutionValueTextRect)
+            self.__gameWindow.blit(schemeValueText,schemeValueTextRect)
             
             clicked = False
             for event in pygame.event.get():
@@ -420,7 +506,7 @@ class MenuCreator(object):
         startText = self.__fontButton.render("START", False, self.__colorBgMid)
         leaderboardText = self.__fontButton.render("LEADERBOARD", False, self.__colorBgMid)
         creditsText = self.__fontButton.render("CREDITS", False, self.__colorBgMid)
-        resetText = self.__fontButton.render("SETTINGS", False, self.__colorBgMid)
+        settingsText = self.__fontButton.render("SETTINGS", False, self.__colorBgMid)
         info = self.__main.playerManager.getPlayerList()[self.__currentPlayer].getCurrentCarInfo(self.__currentCar)
         moneyValueCarTextCalc = "["+str(info[0])+"] "+info[1]+" - "+str(info[2])+"$"
         moneyValueCarText = self.__fontMonospaceSmall.render(moneyValueCarTextCalc,False,self.__colorBgDark)
@@ -434,7 +520,7 @@ class MenuCreator(object):
         startButton = pygame.rect.Rect((400,550),(200,50))
         leaderboardButton = pygame.rect.Rect((50,675),(250,50))
         creditsButton = pygame.rect.Rect((375,675),(250,50))
-        resetButton = pygame.rect.Rect((700,675),(250,50))
+        settingsButton = pygame.rect.Rect((700,675),(250,50))
         buyButton = pygame.rect.Rect((450,495),(100,25))
         
         playerNameBgRect = pygame.rect.Rect((350,300),(300,50))
@@ -457,7 +543,7 @@ class MenuCreator(object):
         startTextRect = startText.get_rect(center=(500,575))
         leaderboardTextRect = leaderboardText.get_rect(center=(175,700))
         creditsTextRect = creditsText.get_rect(center=(500,700))
-        resetTextRect = resetText.get_rect(center=(825,700))
+        settingsTextRect = settingsText.get_rect(center=(825,700))
         moneyValueCarTextRect = moneyValueCarText.get_rect(center=(500,403))
         
         textPlayerName = self.__main.playerManager.getPlayerList()[self.__currentPlayer].getName()
@@ -465,6 +551,19 @@ class MenuCreator(object):
         clicked = False
         
         while self.__main.menuManager.getMainMenu():
+            # falls Farbe geändert! (auer Rechenleistung dies das, ich weiß)
+            highscoreText = self.__fontValues.render("HIGHSCORE:",False,self.__colorBgMid)
+            highscoreNumberText = self.__fontValuesNumbers.render(str(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getHighscore()),False,self.__colorBgMid)
+            moneyText = self.__fontValues.render("MONEY:",False,self.__colorBgMid)
+            moneyNumberText = self.__fontValuesNumbers.render(str(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getTotalMoney(True)),False,self.__colorBgMid)
+            titleText = self.__fontTitle.render("GAMETITLE",False,self.__colorFontMid)
+            startText = self.__fontButton.render("START", False, self.__colorBgMid)
+            leaderboardText = self.__fontButton.render("LEADERBOARD", False, self.__colorBgMid)
+            creditsText = self.__fontButton.render("CREDITS", False, self.__colorBgMid)
+            settingsText = self.__fontButton.render("SETTINGS", False, self.__colorBgMid)
+            info = self.__main.playerManager.getPlayerList()[self.__currentPlayer].getCurrentCarInfo(self.__currentCar)
+            moneyValueCarTextCalc = "["+str(info[0])+"] "+info[1]+" - "+str(info[2])+"$"
+            moneyValueCarText = self.__fontMonospaceSmall.render(moneyValueCarTextCalc,False,self.__colorBgDark)
             # move Car Sprite to selection area
             self.__currentCar = self.__main.playerManager.getPlayerList()[self.__currentPlayer].getCurrentCar()
             dim = self.__main.playerManager.getPlayerList()[self.__currentPlayer].getCarList()[self.__currentCar].getDimensions()
@@ -492,12 +591,11 @@ class MenuCreator(object):
             cursorOverStart = False
             cursorOverCredits = False
             cursorOverLeaderboard = False
-            cursorOverReset = False
+            cursorOverSettings = False
             cursorOverPlayerName = False
             cursorOverPlus = False
             cursorOverMinus = False
             cursorOverBuy = False
-            
             
             if buyButton.collidepoint((cursorPos[0],cursorPos[1])):
                 if clicked:
@@ -552,19 +650,12 @@ class MenuCreator(object):
                     self.creditsMenu()  
                 else:
                     cursorOverCredits = True
-            if resetButton.collidepoint((cursorPos[0],cursorPos[1])):
-                '''
-                if clicked:
-                    self.__main.xml.resetXML(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getId())
-                    values = self.__main.xml.fromXML(self.__main.playerManager.getPlayerList()[self.__currentPlayer].getId())
-                    self.__main.playerManager.getPlayerList()[self.__currentPlayer].loadSave(values[0],values[1],values[3])   
-                    self.__main.playerManager.getPlayerList()[self.__currentPlayer].resetAvailableCarList()
-                '''
+            if settingsButton.collidepoint((cursorPos[0],cursorPos[1])):
                 if clicked:
                     self.__main.menuManager.setSettingsMenu(True)
                     self.settingsMenu()
                 else:
-                    cursorOverReset = True
+                    cursorOverSettings = True
             if rightRect1.collidepoint((cursorPos[0],cursorPos[1])):
                 if clicked:
                     self.__currentPlayer += 1
@@ -625,10 +716,10 @@ class MenuCreator(object):
                 pygame.draw.rect(self.__gameWindow,self.__colorBgDark,creditsButton)
             else:
                 pygame.draw.rect(self.__gameWindow,self.__colorFontMid,creditsButton)
-            if cursorOverReset:
-                pygame.draw.rect(self.__gameWindow,self.__colorBgDark,resetButton)
+            if cursorOverSettings:
+                pygame.draw.rect(self.__gameWindow,self.__colorBgDark,settingsButton)
             else:
-                pygame.draw.rect(self.__gameWindow,self.__colorFontMid,resetButton)
+                pygame.draw.rect(self.__gameWindow,self.__colorFontMid,settingsButton)
             # Draw Text
             if cursorOverPlus:  
                 self.__gameWindow.blit(plus1Image,plusRect)
@@ -651,7 +742,7 @@ class MenuCreator(object):
             self.__gameWindow.blit(startText,startTextRect)
             self.__gameWindow.blit(leaderboardText,leaderboardTextRect)
             self.__gameWindow.blit(creditsText,creditsTextRect)
-            self.__gameWindow.blit(resetText,resetTextRect)
+            self.__gameWindow.blit(settingsText,settingsTextRect)
             self.__gameWindow.blit(highscoreText,highscoreTextRect)
             self.__gameWindow.blit(moneyText,moneyTextRect)
             self.__gameWindow.blit(moneyNumberText,moneyNumberTextRect)

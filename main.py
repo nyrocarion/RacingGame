@@ -8,6 +8,7 @@ from loadSave import LoadSave
 from menuCreator import MenuCreator
 from playerManager import PlayerManager
 from menuManager import MenuManager
+from settingsManager import SettingsManager
 
 class Main(object):
     def __init__(self):
@@ -29,6 +30,7 @@ class Main(object):
         self.obstacleCreator = ObstacleCreator(self.gameWindow,self)
         self.menuCreator = MenuCreator(self.gameWindow,self)
         self.menuManager = MenuManager()
+        self.settingsManager = SettingsManager(self)
         self.laufen = True
                    
     def mainloop(self):
@@ -38,7 +40,7 @@ class Main(object):
                         dann Schritt aus um die Spielumgebung sowohl grafisch als auch im Modell so zurgückzusetzen, dass ein erneuter Run möglich ist.
         Output:         None
         '''
-        self.gameEnvironment.setGameWindowSize(350,800)
+        self.gameEnvironment.setGameWindowSize("gamesize")
         self.gameWindow == self.gameEnvironment.getGameWindow()
         self.gameEnvironment.createBackground()
         self.gameEnvironment.createTop()
@@ -77,7 +79,7 @@ class Main(object):
             self.clock.tick(30.0)
             
             if self.playerManager.getCurrentPlayer().checkEnd():
-                self.gameEnvironment.setGameWindowSize(1000,800)
+                self.gameEnvironment.setGameWindowSize("default")
                 self.gameWindow == self.gameEnvironment.getGameWindow()
                 self.menuManager.setEndMenu(True)
                 self.xml.toXML(self.playerManager.getCurrentPlayer().getId())
